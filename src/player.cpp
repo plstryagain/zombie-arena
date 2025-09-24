@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include <cmath>
 
 Player::Player()
     : speed_{START_SPEED},
