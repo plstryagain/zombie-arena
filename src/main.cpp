@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include "zombie_arena.hpp"
 
 inline static constexpr uint32_t SCREEN_WIDTH = 1920;
 inline static constexpr uint32_t SCREEN_HEIGHT = 1080;
@@ -24,6 +25,9 @@ int main()
     sf::Vector2i mouse_screen_position;
     Player player;
     sf::IntRect arena;
+    sf::VertexArray background;
+    sf::Texture texture_background;
+    texture_background.loadFromFile("assets/graphics/background_sheet.png");
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -92,7 +96,7 @@ int main()
                 arena.height = 500;
                 arena.left = 0;
                 arena.top = 0;
-                int32_t tile_size = 50;
+                int32_t tile_size = create_background(background, arena);
                 player.spawn(arena, resolution, tile_size);
                 clock.restart();
             }
@@ -112,6 +116,7 @@ int main()
         if (state == STATE::kPlaying) {
             window.clear();
             window.setView(view_main);
+            window.draw(background, &texture_background);
             window.draw(player.getSprite());
         }
         if (state == STATE::kLevelingUp) {
