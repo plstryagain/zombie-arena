@@ -1,15 +1,14 @@
 #include "player.hpp"
+#include "texture_holder.hpp"
 #include <cmath>
 
 Player::Player()
     : speed_{START_SPEED},
         health_{START_HEALTH},
         max_health_{START_HEALTH},
-        texture_{},
         sprite_{}
 {
-    texture_.loadFromFile("assets/graphics/player.png");
-    sprite_.setTexture(texture_);
+    sprite_ = sf::Sprite{TextureHolder::getInstance().GetTexture("assets/graphics/player.png")};
     sprite_.setOrigin(25, 25);
 }
 

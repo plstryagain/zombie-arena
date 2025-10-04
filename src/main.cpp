@@ -1,5 +1,7 @@
 #include "player.hpp"
 #include "zombie_arena.hpp"
+#include "texture_holder.hpp"
+#include <iostream>
 
 inline static constexpr uint32_t SCREEN_WIDTH = 1920;
 inline static constexpr uint32_t SCREEN_HEIGHT = 1080;
@@ -26,8 +28,10 @@ int main()
     Player player;
     sf::IntRect arena;
     sf::VertexArray background;
-    sf::Texture texture_background;
-    texture_background.loadFromFile("assets/graphics/background_sheet.png");
+    sf::Texture texture_background = TextureHolder::getInstance().GetTexture("assets/graphics/background_sheet.png");
+    int32_t num_zombies = 0;
+    int32_t num_zombies_alive = 0;
+    std::vector<Zombie> zombies;
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -98,6 +102,9 @@ int main()
                 arena.top = 0;
                 int32_t tile_size = create_background(background, arena);
                 player.spawn(arena, resolution, tile_size);
+                num_zombies = 10;
+                zombies = create_horde(num_zombies, arena);
+                num_zombies_alive = num_zombies;
                 clock.restart();
             }
         }
@@ -111,12 +118,20 @@ int main()
             player.update(dt_as_seconds, sf::Mouse::getPosition());
             sf::Vector2f player_position{player.getCenter()};
             view_main.setCenter(player.getCenter());
+            for (int32_t i = 0; i < num_zombies; ++i) {
+                if (zombies[i].isAlive()) {
+                    zombies[i].update(dt_as_seconds, player_position);
+                }
+            }
         }
 
         if (state == STATE::kPlaying) {
             window.clear();
             window.setView(view_main);
             window.draw(background, &texture_background);
+            for (int32_t i = 0; i < num_zombies; ++i) {
+                window.draw(zombies[i].getSprite());
+            }
             window.draw(player.getSprite());
         }
         if (state == STATE::kLevelingUp) {

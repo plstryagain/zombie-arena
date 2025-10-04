@@ -35,7 +35,6 @@ private:
     const int32_t START_HEALTH = 100;
     sf::Vector2f position_;
     sf::Sprite sprite_;
-    sf::Texture texture_;
     sf::Vector2f resolution_;
     sf::IntRect arena_;
     int32_t tile_size_;

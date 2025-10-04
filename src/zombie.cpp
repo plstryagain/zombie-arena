@@ -2,6 +2,7 @@
 #include "texture_holder.hpp"
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
 Zombie::Zombie()
 {
@@ -13,7 +14,7 @@ bool Zombie::hit()
     --health_;
     if (health_ < 0) {
         is_alive_ = false;
-        sprite_.setTexture(TextureHolder::getInstance().GetTexture("asets/graphics/blood.png"));
+        sprite_.setTexture(TextureHolder::getInstance().GetTexture("assets/graphics/blood.png"));
         return true;
     }
     return false;
@@ -43,11 +44,11 @@ void Zombie::spawn(float start_x, float start_y, Zombie::TYPE type, int seed)
         health_ = CRAWLER_HEALTH;
         break;
     }
+    std::cout << "spawn: " << static_cast<int32_t>(type) << std::endl;
     srand(static_cast<int32_t>(time(0) * seed));
     float modifier = (rand() % MAX_VARIANCE) + OFFSET;
     modifier /= 100;
     speed_ += modifier;
-
     position_.x = start_x;
     position_.y = start_y;
     sprite_.setOrigin(25, 25);

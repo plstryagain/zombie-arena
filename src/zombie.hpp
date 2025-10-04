@@ -8,11 +8,11 @@ public:
     Zombie();
 
 public:
-    enum class TYPE
+    enum class TYPE : int32_t
     {
-        kBloater,
-        kChaser,
-        kCrawler
+        kBloater = 0,
+        kChaser = 1,
+        kCrawler = 2
     };
 
 public:

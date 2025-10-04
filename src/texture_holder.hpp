@@ -19,7 +19,7 @@ private:
     TextureHolder();
 
 public:
-    sf::Texture GetTexture(const std::string& filename);
+    sf::Texture& GetTexture(const std::string& filename);
 
 private:
     std::map<std::string, sf::Texture> textures_;

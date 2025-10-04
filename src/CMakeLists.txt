@@ -3,6 +3,7 @@ set(SOURCES main.cpp
             create_background.cpp
             texture_holder.cpp
             zombie.cpp
+            create_horde.cpp
 )
 
 add_library(main_obj OBJECT ${SOURCES})
