@@ -4,6 +4,7 @@ set(SOURCES main.cpp
             texture_holder.cpp
             zombie.cpp
             create_horde.cpp
+            bullet.cpp
 )
 
 add_library(main_obj OBJECT ${SOURCES})

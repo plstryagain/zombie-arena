@@ -1,7 +1,9 @@
 #include "player.hpp"
 #include "zombie_arena.hpp"
 #include "texture_holder.hpp"
-#include <iostream>
+#include "bullet.hpp"
+
+#include <array>
 
 inline static constexpr uint32_t SCREEN_WIDTH = 1920;
 inline static constexpr uint32_t SCREEN_HEIGHT = 1080;
@@ -32,6 +34,18 @@ int main()
     int32_t num_zombies = 0;
     int32_t num_zombies_alive = 0;
     std::vector<Zombie> zombies;
+    std::array<Bullet, 100> bullets;
+    int32_t current_bullet = 0;
+    int32_t bullets_spare = 24;
+    int32_t bullets_in_clip = 6;
+    int32_t clip_size = 6;
+    float fire_rate = 1;
+    sf::Time last_pressed;
+    window.setMouseCursorVisible(false);
+    sf::Sprite sprite_crosshair;
+    sf::Texture crosshair_texture = TextureHolder::getInstance().GetTexture("assets/graphics/crosshair.png");
+    sprite_crosshair.setTexture(crosshair_texture);
+    sprite_crosshair.setOrigin(25, 25);
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -45,7 +59,17 @@ int main()
                     state = STATE::kLevelingUp;
                 }
                 if (state == STATE::kPlaying) {
+                    if (event.key.code == sf::Keyboard::R) {
+                        if (bullets_spare >= clip_size) {
+                            bullets_in_clip = clip_size;
+                            bullets_spare -= clip_size;
+                        } else if (bullets_spare > 0) {
+                            bullets_in_clip = bullets_spare;
+                            bullets_spare = 0;
+                        } else {
 
+                        }
+                    }
                 }
             } else if (event.type == sf::Event::Closed) {
                 window.close();
@@ -74,6 +98,18 @@ int main()
                 player.moveRight();
             } else {
                 player.stopRight();
+            }
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                if (game_time_total.asMilliseconds() - last_pressed.asMilliseconds() > (1000 / fire_rate) &&
+                    bullets_in_clip > 0) {
+                    bullets[current_bullet].shoot(player.getCenter().x, player.getCenter().y, mouse_world_position.x, mouse_world_position.y);
+                    ++current_bullet;
+                    if (current_bullet > 99) {
+                        current_bullet = 0;
+                    }
+                    last_pressed = game_time_total;
+                    --bullets_in_clip;
+                }
             }
         }
         if (state == STATE::kLevelingUp) {
@@ -115,12 +151,18 @@ int main()
             float dt_as_seconds = dt.asSeconds();
             mouse_screen_position = sf::Mouse::getPosition();
             mouse_world_position = window.mapPixelToCoords(sf::Mouse::getPosition(), view_main);
+            sprite_crosshair.setPosition(mouse_world_position);
             player.update(dt_as_seconds, sf::Mouse::getPosition());
             sf::Vector2f player_position{player.getCenter()};
             view_main.setCenter(player.getCenter());
             for (int32_t i = 0; i < num_zombies; ++i) {
                 if (zombies[i].isAlive()) {
                     zombies[i].update(dt_as_seconds, player_position);
+                }
+            }
+            for (int32_t i = 0; i < 100; ++i) {
+                if (bullets[i].isInFlight()) {
+                    bullets[i].update(dt_as_seconds);
                 }
             }
         }
@@ -132,7 +174,13 @@ int main()
             for (int32_t i = 0; i < num_zombies; ++i) {
                 window.draw(zombies[i].getSprite());
             }
+            for (int32_t i = 0; i < 100; ++i) {
+                if (bullets[i].isInFlight()) {
+                    window.draw(bullets[i].getShape());
+                }
+            }
             window.draw(player.getSprite());
+            window.draw(sprite_crosshair);
         }
         if (state == STATE::kLevelingUp) {
 
