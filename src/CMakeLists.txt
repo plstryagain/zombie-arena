@@ -5,6 +5,7 @@ set(SOURCES main.cpp
             zombie.cpp
             create_horde.cpp
             bullet.cpp
+            pickup.cpp
 )
 
 add_library(main_obj OBJECT ${SOURCES})

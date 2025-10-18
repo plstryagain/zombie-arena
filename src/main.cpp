@@ -2,6 +2,7 @@
 #include "zombie_arena.hpp"
 #include "texture_holder.hpp"
 #include "bullet.hpp"
+#include "pickup.hpp"
 
 #include <array>
 
@@ -46,6 +47,9 @@ int main()
     sf::Texture crosshair_texture = TextureHolder::getInstance().GetTexture("assets/graphics/crosshair.png");
     sprite_crosshair.setTexture(crosshair_texture);
     sprite_crosshair.setOrigin(25, 25);
+
+    Pickup health_pickup{Pickup::TYPE::kHealth};
+    Pickup ammo_pickup{Pickup::TYPE::kAmmo};
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -138,6 +142,8 @@ int main()
                 arena.top = 0;
                 int32_t tile_size = create_background(background, arena);
                 player.spawn(arena, resolution, tile_size);
+                health_pickup.setArena(arena);
+                ammo_pickup.setArena(arena);
                 num_zombies = 10;
                 zombies = create_horde(num_zombies, arena);
                 num_zombies_alive = num_zombies;
@@ -165,6 +171,8 @@ int main()
                     bullets[i].update(dt_as_seconds);
                 }
             }
+            health_pickup.update(dt_as_seconds);
+            ammo_pickup.update(dt_as_seconds);
         }
 
         if (state == STATE::kPlaying) {
@@ -180,6 +188,12 @@ int main()
                 }
             }
             window.draw(player.getSprite());
+            if (ammo_pickup.isSpawned()) {
+                window.draw(ammo_pickup.getSprite());
+            }
+            if (health_pickup.isSpawned()) {
+                window.draw(health_pickup.getSprite());
+            }
             window.draw(sprite_crosshair);
         }
         if (state == STATE::kLevelingUp) {
