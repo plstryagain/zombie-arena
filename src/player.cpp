@@ -34,7 +34,7 @@ void Player::resetPlayerStats()
 
 bool Player::hit(sf::Time time_hit)
 {
-    if (time_hit.asMicroseconds() - last_hit_.asMilliseconds() > 200) {
+    if (time_hit.asMilliseconds() - last_hit_.asMilliseconds() > 200) {
         last_hit_ = time_hit;
         health_ -= 10;
         return true;
@@ -160,4 +160,16 @@ void Player::increaseHealthLevel(int32_t amount)
     if (health_ > max_health_) {
         health_ = max_health_;
     }
+}
+
+sf::RectangleShape Player::frame()
+{
+    sf::FloatRect global_bounds = getPosition();
+    sf::RectangleShape bounds_rect;
+    bounds_rect.setPosition(global_bounds.left, global_bounds.top);
+    bounds_rect.setSize(sf::Vector2f(global_bounds.width, global_bounds.height));
+    bounds_rect.setFillColor(sf::Color::Transparent);
+    bounds_rect.setOutlineColor(sf::Color::Red);
+    bounds_rect.setOutlineThickness(1.f);
+    return bounds_rect;
 }

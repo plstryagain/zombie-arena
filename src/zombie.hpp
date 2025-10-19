@@ -22,6 +22,8 @@ public:
     sf::FloatRect getPosition() const;
     sf::Sprite getSprite() const;
     void update(float elapsed_time, sf::Vector2f player_location);
+    Zombie::TYPE getType() const;
+    sf::RectangleShape frame();
 
 private:
     static inline constexpr float BLOATER_SPEED = 40;
@@ -40,4 +42,5 @@ private:
     float speed_;
     float health_;
     bool is_alive_;
+    TYPE type_;
 };

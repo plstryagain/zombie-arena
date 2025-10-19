@@ -15,8 +15,8 @@ std::vector<Zombie> create_horde(int32_t num_zombies, sf::IntRect arena)
     zombies.resize(num_zombies);
     int32_t max_y = arena.height - 20;
     int32_t min_y = arena.top + 20;
-    int32_t max_x = arena.width + 20;
-    int32_t min_x = arena.left - 20;
+    int32_t max_x = arena.width - 20;
+    int32_t min_x = arena.left + 20;
     for (int32_t i = 0; i < num_zombies; ++i) {
         srand(static_cast<int32_t>(time(0)) * i);
         SIDE side = static_cast<SIDE>(rand() % 4);
@@ -39,7 +39,6 @@ std::vector<Zombie> create_horde(int32_t num_zombies, sf::IntRect arena)
             y = max_y;
             break;
         }
-        std::cout << "side: " << static_cast<int32_t>(side) << std::endl;
         srand(static_cast<int32_t>(time(0)) * i * 2);
         Zombie::TYPE type = static_cast<Zombie::TYPE>(rand() % 3);
         zombies[i].spawn(x, y, type, i);

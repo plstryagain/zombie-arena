@@ -29,6 +29,7 @@ public:
     void upgradeSpeed();
     void upgradeHealth();
     void increaseHealthLevel(int32_t amount);
+    sf::RectangleShape frame();
 
 private:
     const float START_SPEED = 200;

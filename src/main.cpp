@@ -5,6 +5,7 @@
 #include "pickup.hpp"
 
 #include <array>
+#include <iostream>
 
 inline static constexpr uint32_t SCREEN_WIDTH = 1920;
 inline static constexpr uint32_t SCREEN_HEIGHT = 1080;
@@ -21,7 +22,7 @@ int main()
     sf::Vector2f resolution;
     resolution.x = sf::VideoMode::getDesktopMode().width;
     resolution.y = sf::VideoMode::getDesktopMode().height;
-    sf::RenderWindow window(sf::VideoMode{static_cast<uint32_t>(resolution.x), static_cast<uint32_t>(resolution.y)}, "Zombie Arena", sf::Style::Fullscreen);
+    sf::RenderWindow window(sf::VideoMode{static_cast<uint32_t>(resolution.x), static_cast<uint32_t>(resolution.y)}, "Zombie Arena", sf::Style::Default);
     sf::View view_main{sf::FloatRect{0, 0, resolution.x, resolution.y}};
     sf::Clock clock;
     // in state kPlaying
@@ -50,6 +51,8 @@ int main()
 
     Pickup health_pickup{Pickup::TYPE::kHealth};
     Pickup ammo_pickup{Pickup::TYPE::kAmmo};
+    int32_t score = 0;
+    int32_t hiscore = 0;
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -142,6 +145,7 @@ int main()
                 arena.top = 0;
                 int32_t tile_size = create_background(background, arena);
                 player.spawn(arena, resolution, tile_size);
+                player.resetPlayerStats();
                 health_pickup.setArena(arena);
                 ammo_pickup.setArena(arena);
                 num_zombies = 10;
@@ -173,6 +177,45 @@ int main()
             }
             health_pickup.update(dt_as_seconds);
             ammo_pickup.update(dt_as_seconds);
+            int32_t bullets_num = bullets.size();
+            for (int32_t i = 0; i < bullets_num; ++i) {
+                for (int32_t j = 0; j < num_zombies; ++j) {
+                    if (bullets[i].isInFlight() && zombies[j].isAlive()) {
+                        if (bullets[i].getPosition().intersects(zombies[j].getPosition())) {
+                            bullets[i].stop();
+                            if (zombies[j].hit()) {
+                                score += 10;
+                                if (score >= hiscore) {
+                                    hiscore = score;
+                                }
+                                --num_zombies_alive;
+                                if (num_zombies_alive == 0) {
+                                    state = STATE::kLevelingUp;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (int32_t i = 0; i < num_zombies; ++i) {
+                if (player.getPosition().intersects(zombies[i].getPosition()) &&
+                    zombies[i].isAlive()) {
+                    if (player.hit(game_time_total)) {
+
+                    }
+                    if (player.getHealth() <= 0) {
+                        state = STATE::kGameOver;
+                    }
+                }
+            }
+            if (player.getPosition().intersects(health_pickup.getPosition()) &&
+                health_pickup.isSpawned()) {
+                player.increaseHealthLevel(health_pickup.gotIt());
+            }
+            if (player.getPosition().intersects(ammo_pickup.getPosition()) &&
+                ammo_pickup.isSpawned()) {
+                bullets_spare += ammo_pickup.gotIt();
+            }
         }
 
         if (state == STATE::kPlaying) {
@@ -181,6 +224,7 @@ int main()
             window.draw(background, &texture_background);
             for (int32_t i = 0; i < num_zombies; ++i) {
                 window.draw(zombies[i].getSprite());
+                window.draw(zombies[i].frame());
             }
             for (int32_t i = 0; i < 100; ++i) {
                 if (bullets[i].isInFlight()) {
@@ -188,6 +232,7 @@ int main()
                 }
             }
             window.draw(player.getSprite());
+            window.draw(player.frame());
             if (ammo_pickup.isSpawned()) {
                 window.draw(ammo_pickup.getSprite());
             }

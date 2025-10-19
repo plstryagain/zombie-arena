@@ -27,6 +27,7 @@ bool Zombie::isAlive() const
 
 void Zombie::spawn(float start_x, float start_y, Zombie::TYPE type, int seed)
 {
+    type_ = type;
     switch (type) {
     case TYPE::kBloater:
         sprite_ = sf::Sprite{TextureHolder::getInstance().GetTexture("assets/graphics/bloater.png")};
@@ -44,11 +45,10 @@ void Zombie::spawn(float start_x, float start_y, Zombie::TYPE type, int seed)
         health_ = CRAWLER_HEALTH;
         break;
     }
-    std::cout << "spawn: " << static_cast<int32_t>(type) << std::endl;
     srand(static_cast<int32_t>(time(0) * seed));
     float modifier = (rand() % MAX_VARIANCE) + OFFSET;
     modifier /= 100;
-    speed_ += modifier;
+    speed_ *= modifier;
     position_.x = start_x;
     position_.y = start_y;
     sprite_.setOrigin(25, 25);
@@ -57,7 +57,7 @@ void Zombie::spawn(float start_x, float start_y, Zombie::TYPE type, int seed)
 
 sf::FloatRect Zombie::getPosition() const
 {
-    return sprite_.getLocalBounds();
+    return sprite_.getGlobalBounds();
 }
 
 sf::Sprite Zombie::getSprite() const
@@ -84,4 +84,21 @@ void Zombie::update(float elapsed_time, sf::Vector2f player_location)
     sprite_.setPosition(position_);
     float angle = (atan2(player_y - position_.y, player_x - position_.x) * 180) / 3.14;
     sprite_.setRotation(angle);
+}
+
+Zombie::TYPE Zombie::getType() const
+{
+    return type_;
+}
+
+sf::RectangleShape Zombie::frame()
+{
+    sf::FloatRect global_bounds = getPosition();
+    sf::RectangleShape bounds_rect;
+    bounds_rect.setPosition(global_bounds.left, global_bounds.top);
+    bounds_rect.setSize(sf::Vector2f(global_bounds.width, global_bounds.height));
+    bounds_rect.setFillColor(sf::Color::Transparent);
+    bounds_rect.setOutlineColor(sf::Color::Red);
+    bounds_rect.setOutlineThickness(1.f);
+    return bounds_rect;
 }
