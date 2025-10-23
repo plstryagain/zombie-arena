@@ -343,6 +343,7 @@ int main()
                                     state = STATE::kLevelingUp;
                                 }
                             }
+                            splat.play();
                         }
                     }
                 }
@@ -351,7 +352,7 @@ int main()
                 if (player.getPosition().intersects(zombies[i].getPosition()) &&
                     zombies[i].isAlive()) {
                     if (player.hit(game_time_total)) {
-
+                        hit.play();
                     }
                     if (player.getHealth() <= 0) {
                         state = STATE::kGameOver;
@@ -364,10 +365,12 @@ int main()
             if (player.getPosition().intersects(health_pickup.getPosition()) &&
                 health_pickup.isSpawned()) {
                 player.increaseHealthLevel(health_pickup.gotIt());
+                pickup.play();
             }
             if (player.getPosition().intersects(ammo_pickup.getPosition()) &&
                 ammo_pickup.isSpawned()) {
                 bullets_spare += ammo_pickup.gotIt();
+                pickup.play();
             }
             health_bar.setSize(sf::Vector2f{static_cast<float>(player.getHealth() * 3), 50});
             ++frames_since_last_hud_update;
