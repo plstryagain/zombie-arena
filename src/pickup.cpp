@@ -75,7 +75,7 @@ bool Pickup::isSpawned() const
 
 int32_t Pickup::gotIt()
 {
-    return spawned_ = false;
+    spawned_ = false;
     seconds_since_despawn_ = 0;
     return value_;
 }
